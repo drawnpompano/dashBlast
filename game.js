@@ -292,20 +292,11 @@ function endDrag(clientX, clientY) {
 function positionGhost(clientX, clientY) {
   const cellSize = getCellSize();
   const step = cellSize + 3;
-  const target = boardCoordsFromPointer(clientX, clientY);
-
-  if (target) {
-    // Snap ghost to the exact board cells it will occupy
-    const rect = boardEl.getBoundingClientRect();
-    dragGhost.style.left = `${rect.left + target.c * step}px`;
-    dragGhost.style.top  = `${rect.top  + target.r * step}px`;
-  } else {
-    // Float ghost above the finger when off the board
-    const cols = Math.max(...dragging.shape.map(([, c]) => c)) + 1;
-    const rows = Math.max(...dragging.shape.map(([r]) => r)) + 1;
-    dragGhost.style.left = `${clientX - (cols * step) / 2}px`;
-    dragGhost.style.top  = `${clientY - rows * step - cellSize}px`;
-  }
+  const cols = Math.max(...dragging.shape.map(([, c]) => c)) + 1;
+  const rows = Math.max(...dragging.shape.map(([r]) => r)) + 1;
+  // Ghost follows the finger freely — board preview shows the snap target
+  dragGhost.style.left = `${clientX - (cols * step) / 2}px`;
+  dragGhost.style.top  = `${clientY - rows * step - cellSize}px`;
 }
 
 // ===== Preview =====

@@ -1,6 +1,12 @@
 /* ===== Reset & Base ===== */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
+/*
+  Cell size is derived from viewport so the board always fits without scrolling.
+  Board width  = 8*cell + 7*3gap + 2*10pad + 2*2border = 8*cell + 45
+  Board height = 8*cell + 7*3gap               = 8*cell + 21
+  Vertical non-board: header~50 + 2*gap~40 + tray~120 + 2*pad~40 = ~250px
+*/
 :root {
   --bg: #0d0d1a;
   --surface: #16162a;
@@ -13,29 +19,44 @@
   --cell-empty: #1c1c34;
   --cell-border: #252545;
   --glow: 0 0 12px rgba(108, 99, 255, 0.6);
-  --cell-size: 48px;
+
+  /* Fit board to narrower of width or height constraints, cap at 48px */
+  --cell-size: min(
+    48px,
+    calc((100vw - 45px) / 8),
+    calc((100dvh - 250px) / 8)
+  );
+  --piece-cell: calc(var(--cell-size) * 0.75);
+}
+
+html, body {
+  height: 100%;
+  height: 100dvh;
 }
 
 body {
   background: var(--bg);
   color: var(--text);
   font-family: 'Segoe UI', system-ui, sans-serif;
-  min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
   user-select: none;
   overflow: hidden;
+  /* Safe area insets for notched phones */
+  padding: env(safe-area-inset-top) env(safe-area-inset-right)
+           env(safe-area-inset-bottom) env(safe-area-inset-left);
+  touch-action: none;
 }
 
 #app {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 20px;
-  padding: 20px;
-  max-width: 540px;
+  gap: clamp(10px, 2vh, 20px);
+  padding: clamp(8px, 2vw, 20px);
   width: 100%;
+  max-width: 540px;
 }
 
 /* ===== Header ===== */
@@ -47,40 +68,39 @@ header {
 }
 
 header h1 {
-  font-size: 2rem;
+  font-size: clamp(1.2rem, 5vw, 2rem);
   font-weight: 900;
   letter-spacing: 2px;
   background: linear-gradient(135deg, var(--accent), var(--accent2));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  text-shadow: none;
 }
 
 #score-panel {
   display: flex;
-  gap: 12px;
+  gap: 10px;
 }
 
 .score-box {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 10px;
-  padding: 8px 16px;
+  padding: 6px 14px;
   text-align: center;
-  min-width: 80px;
+  min-width: 70px;
 }
 
 .score-box .label {
   display: block;
-  font-size: 0.6rem;
+  font-size: 0.55rem;
   letter-spacing: 2px;
   color: var(--text-dim);
   margin-bottom: 2px;
 }
 
 .score-box span:not(.label) {
-  font-size: 1.3rem;
+  font-size: clamp(0.9rem, 3vw, 1.3rem);
   font-weight: 700;
   color: var(--yellow);
 }
@@ -106,13 +126,12 @@ header h1 {
   height: var(--cell-size);
   background: var(--cell-empty);
   border: 1px solid var(--cell-border);
-  border-radius: 6px;
+  border-radius: clamp(3px, 0.8vw, 6px);
   transition: background 0.1s, transform 0.1s, box-shadow 0.1s;
 }
 
 .cell.filled {
   border-color: transparent;
-  border-radius: 6px;
 }
 
 .cell.preview {
@@ -133,7 +152,7 @@ header h1 {
 
 @keyframes flash {
   0%   { filter: brightness(2.5); transform: scale(1.08); }
-  100% { filter: brightness(1); transform: scale(1); }
+  100% { filter: brightness(1);   transform: scale(1); }
 }
 
 /* ===== Pieces Tray ===== */
@@ -142,11 +161,11 @@ header h1 {
   align-items: center;
   justify-content: space-around;
   width: 100%;
-  min-height: 120px;
+  min-height: calc(var(--piece-cell) * 5 + 12px);
   background: var(--surface);
   border: 2px solid var(--border);
   border-radius: 14px;
-  padding: 16px 8px;
+  padding: 12px 8px;
   gap: 8px;
 }
 
@@ -155,18 +174,14 @@ header h1 {
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 100px;
+  min-height: calc(var(--piece-cell) * 3);
 }
 
 /* ===== Draggable Pieces ===== */
 .piece-wrapper {
-  position: relative;
   cursor: grab;
   transition: transform 0.15s;
-}
-
-.piece-wrapper:hover {
-  transform: scale(1.06);
+  touch-action: none;
 }
 
 .piece-wrapper:active {
@@ -184,9 +199,9 @@ header h1 {
 }
 
 .piece-cell {
-  width: 36px;
-  height: 36px;
-  border-radius: 5px;
+  width: var(--piece-cell);
+  height: var(--piece-cell);
+  border-radius: clamp(3px, 0.8vw, 5px);
   border: 1px solid rgba(255,255,255,0.1);
 }
 
@@ -197,14 +212,13 @@ header h1 {
   z-index: 1000;
   opacity: 0.85;
   transform: scale(1.1);
-  transition: none;
   display: none;
 }
 
 #drag-ghost .piece-cell {
   width: var(--cell-size);
   height: var(--cell-size);
-  border-radius: 6px;
+  border-radius: clamp(3px, 0.8vw, 6px);
 }
 
 #drag-ghost .piece-grid {
@@ -229,10 +243,11 @@ header h1 {
   background: var(--surface);
   border: 2px solid var(--accent);
   border-radius: 20px;
-  padding: 40px 48px;
+  padding: 36px 44px;
   text-align: center;
   box-shadow: var(--glow), 0 20px 60px rgba(0,0,0,0.7);
   animation: pop-in 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  margin: 20px;
 }
 
 @keyframes pop-in {
@@ -241,7 +256,7 @@ header h1 {
 }
 
 #game-over-box h2 {
-  font-size: 2.2rem;
+  font-size: 2rem;
   font-weight: 900;
   background: linear-gradient(135deg, var(--accent), var(--accent2));
   -webkit-background-clip: text;
@@ -263,7 +278,7 @@ header h1 {
 
 #restart-btn {
   margin-top: 24px;
-  padding: 12px 36px;
+  padding: 14px 40px;
   font-size: 1rem;
   font-weight: 700;
   letter-spacing: 1px;
@@ -273,12 +288,9 @@ header h1 {
   border-radius: 50px;
   cursor: pointer;
   box-shadow: var(--glow);
-  transition: transform 0.15s, box-shadow 0.15s;
-}
-
-#restart-btn:hover {
-  transform: scale(1.05);
-  box-shadow: 0 0 20px rgba(108, 99, 255, 0.8);
+  /* Large touch target */
+  min-height: 48px;
+  min-width: 160px;
 }
 
 #restart-btn:active {
@@ -301,20 +313,20 @@ header h1 {
 }
 
 @keyframes combo-anim {
-  0%   { opacity: 1; transform: translate(-50%, 0) scale(1); }
+  0%   { opacity: 1; transform: translate(-50%, 0)    scale(1);   }
   60%  { opacity: 1; transform: translate(-50%, -40px) scale(1.2); }
   100% { opacity: 0; transform: translate(-50%, -80px) scale(0.9); }
 }
 
 /* ===== Piece color themes ===== */
-.color-0  { background: #6c63ff; box-shadow: 0 2px 8px rgba(108,99,255,0.5); }
-.color-1  { background: #ff6584; box-shadow: 0 2px 8px rgba(255,101,132,0.5); }
-.color-2  { background: #43d9ad; box-shadow: 0 2px 8px rgba(67,217,173,0.5); }
-.color-3  { background: #ffd93d; box-shadow: 0 2px 8px rgba(255,217,61,0.5); }
-.color-4  { background: #ff922b; box-shadow: 0 2px 8px rgba(255,146,43,0.5); }
-.color-5  { background: #38d9f5; box-shadow: 0 2px 8px rgba(56,217,245,0.5); }
-.color-6  { background: #c084fc; box-shadow: 0 2px 8px rgba(192,132,252,0.5); }
-.color-7  { background: #f97316; box-shadow: 0 2px 8px rgba(249,115,22,0.5); }
+.color-0 { background: #6c63ff; box-shadow: 0 2px 8px rgba(108,99,255,0.5); }
+.color-1 { background: #ff6584; box-shadow: 0 2px 8px rgba(255,101,132,0.5); }
+.color-2 { background: #43d9ad; box-shadow: 0 2px 8px rgba(67,217,173,0.5); }
+.color-3 { background: #ffd93d; box-shadow: 0 2px 8px rgba(255,217,61,0.5); }
+.color-4 { background: #ff922b; box-shadow: 0 2px 8px rgba(255,146,43,0.5); }
+.color-5 { background: #38d9f5; box-shadow: 0 2px 8px rgba(56,217,245,0.5); }
+.color-6 { background: #c084fc; box-shadow: 0 2px 8px rgba(192,132,252,0.5); }
+.color-7 { background: #f97316; box-shadow: 0 2px 8px rgba(249,115,22,0.5); }
 
 /* ===== Score pop animation ===== */
 #score.pop {
@@ -327,11 +339,44 @@ header h1 {
   100% { transform: scale(1); }
 }
 
-/* ===== Mobile responsiveness ===== */
-@media (max-width: 520px) {
-  :root { --cell-size: 38px; }
-  .piece-cell { width: 28px; height: 28px; }
-  #drag-ghost .piece-cell { width: var(--cell-size); height: var(--cell-size); }
-  header h1 { font-size: 1.4rem; }
-  .score-box span:not(.label) { font-size: 1rem; }
+/* ===== Landscape: side-by-side layout ===== */
+@media (orientation: landscape) and (max-height: 500px) {
+  :root {
+    --cell-size: min(40px, calc((100dvh - 30px) / 8));
+    --piece-cell: calc(var(--cell-size) * 0.7);
+  }
+
+  #app {
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    max-width: none;
+    padding: 8px;
+  }
+
+  main {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 12px;
+  }
+
+  #pieces-tray {
+    flex-direction: column;
+    width: auto;
+    min-height: unset;
+    height: calc(8 * var(--cell-size) + 7 * 3px + 20px);
+    padding: 8px 10px;
+  }
+
+  header {
+    flex-direction: column;
+    gap: 10px;
+    width: auto;
+  }
+
+  #score-panel {
+    flex-direction: column;
+  }
 }

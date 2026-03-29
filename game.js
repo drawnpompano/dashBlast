@@ -1,7 +1,7 @@
 // ===== Constants =====
 const GRID_SIZE = 8;
 const NUM_SLOTS = 3;
-const COLORS = 8; // matches .color-0 through .color-7
+const COLORS = 4; // yellow, blue, green, purple (.color-0 through .color-3)
 
 // All piece shapes: arrays of [row, col] offsets (normalized to top-left)
 const SHAPES = [
@@ -66,6 +66,9 @@ let bestScore = parseInt(localStorage.getItem('dashBlastBest') || '0');
 // Drag state
 let dragging = null;  // { slotIndex, shape, color, anchorRow, anchorCol }
 
+// Set to true when the board is fully cleared — next batch spawns as one color
+let clearBoardBonus = false;
+
 // ===== DOM refs =====
 const boardEl       = document.getElementById('board');
 const scoreEl       = document.getElementById('score');
@@ -124,9 +127,12 @@ function updateScore() {
 
 // ===== Piece Spawning =====
 function spawnPieces() {
+  // Clear-board bonus: all 3 pieces share one random color
+  const bonusColor = clearBoardBonus ? Math.floor(Math.random() * COLORS) : null;
+  clearBoardBonus = false;
   pieces = Array.from({ length: NUM_SLOTS }, () => ({
     shape: SHAPES[Math.floor(Math.random() * SHAPES.length)],
-    color: Math.floor(Math.random() * COLORS),
+    color: bonusColor !== null ? bonusColor : Math.floor(Math.random() * COLORS),
     used: false,
   }));
   renderTray();
@@ -421,6 +427,9 @@ function placePiece(slotIndex, anchorR, anchorC) {
   renderTray();
 
   const cleared = clearLines();
+  if (cleared > 0 && board.every(row => row.every(v => v === 0))) {
+    clearBoardBonus = true;
+  }
   const pointsFromCells = p.shape.length * 10;
   score += pointsFromCells;
 

@@ -291,10 +291,21 @@ function endDrag(clientX, clientY) {
 
 function positionGhost(clientX, clientY) {
   const cellSize = getCellSize();
-  const cols = Math.max(...dragging.shape.map(([, c]) => c)) + 1;
-  const rows = Math.max(...dragging.shape.map(([r]) => r)) + 1;
-  dragGhost.style.left = `${clientX - (cols * (cellSize + 3)) / 2}px`;
-  dragGhost.style.top  = `${clientY - (rows * (cellSize + 3)) / 2 - cellSize}px`;
+  const step = cellSize + 3;
+  const target = boardCoordsFromPointer(clientX, clientY);
+
+  if (target) {
+    // Snap ghost to the exact board cells it will occupy
+    const rect = boardEl.getBoundingClientRect();
+    dragGhost.style.left = `${rect.left + target.c * step}px`;
+    dragGhost.style.top  = `${rect.top  + target.r * step}px`;
+  } else {
+    // Float ghost above the finger when off the board
+    const cols = Math.max(...dragging.shape.map(([, c]) => c)) + 1;
+    const rows = Math.max(...dragging.shape.map(([r]) => r)) + 1;
+    dragGhost.style.left = `${clientX - (cols * step) / 2}px`;
+    dragGhost.style.top  = `${clientY - rows * step - cellSize}px`;
+  }
 }
 
 // ===== Preview =====
@@ -316,8 +327,13 @@ function showPreview(clientX, clientY) {
 }
 
 function clearPreview() {
-  boardEl.querySelectorAll('.preview, .preview-invalid').forEach(cell => {
-    cell.classList.remove('preview', 'preview-invalid', ...colorClasses());
+  // Valid-placement preview: cells were empty, safe to remove color classes
+  boardEl.querySelectorAll('.preview').forEach(cell => {
+    cell.classList.remove('preview', ...colorClasses());
+  });
+  // Invalid-placement preview: cells may already be filled — only remove the marker
+  boardEl.querySelectorAll('.preview-invalid').forEach(cell => {
+    cell.classList.remove('preview-invalid');
   });
 }
 
@@ -336,27 +352,28 @@ function boardCoordsFromPointer(clientX, clientY) {
   const cellSize = getCellSize();
   const step = cellSize + 3;
 
-  // Only snap when pointer is on or near the board
-  const margin = cellSize;
-  if (
-    clientX < rect.left - margin || clientX > rect.right  + margin ||
-    clientY < rect.top  - margin || clientY > rect.bottom + margin
-  ) return null;
+  // The ghost is rendered above the finger. Shift Y up by one cell so the
+  // snap target matches what the user sees (ghost position ≈ finger − cellSize).
+  const snapX = clientX;
+  const snapY = clientY - cellSize;
 
-  // Map pointer to fractional cell coords
-  const rawCol = (clientX - rect.left) / step;
-  const rawRow = (clientY - rect.top)  / step;
+  // Large vertical margin so drags starting from the tray still snap
+  const margin = cellSize * 4;
+  if (
+    snapX < rect.left  - margin || snapX > rect.right  + margin ||
+    snapY < rect.top   - margin || snapY > rect.bottom + margin
+  ) return null;
 
   const maxR = Math.max(...dragging.shape.map(([r]) => r));
   const maxC = Math.max(...dragging.shape.map(([, c]) => c));
   const shapeRows = maxR + 1;
   const shapeCols = maxC + 1;
 
-  // Center piece on pointer
-  let anchorRow = Math.round(rawRow - (shapeRows - 1) / 2);
-  let anchorCol = Math.round(rawCol - (shapeCols - 1) / 2);
+  // Center piece on the snap point
+  let anchorRow = Math.round((snapY - rect.top)  / step - (shapeRows - 1) / 2);
+  let anchorCol = Math.round((snapX - rect.left) / step - (shapeCols - 1) / 2);
 
-  // Clamp to board — never reject a placement due to edge proximity
+  // Clamp so every cell on the board is reachable
   anchorRow = Math.max(0, Math.min(GRID_SIZE - 1 - maxR, anchorRow));
   anchorCol = Math.max(0, Math.min(GRID_SIZE - 1 - maxC, anchorCol));
 

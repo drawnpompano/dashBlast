@@ -343,28 +343,29 @@ function boardCoordsFromPointer(clientX, clientY) {
   const cellSize = getCellSize();
   const step = cellSize + 3;
 
-  // The ghost is rendered above the finger. Shift Y up by one cell so the
-  // snap target matches what the user sees (ghost position ≈ finger − cellSize).
-  const snapX = clientX;
-  const snapY = clientY - cellSize;
-
-  // Large vertical margin so drags starting from the tray still snap
-  const margin = cellSize * 4;
-  if (
-    snapX < rect.left  - margin || snapX > rect.right  + margin ||
-    snapY < rect.top   - margin || snapY > rect.bottom + margin
-  ) return null;
-
   const maxR = Math.max(...dragging.shape.map(([r]) => r));
   const maxC = Math.max(...dragging.shape.map(([, c]) => c));
   const shapeRows = maxR + 1;
   const shapeCols = maxC + 1;
 
-  // Center piece on the snap point
-  let anchorRow = Math.round((snapY - rect.top)  / step - (shapeRows - 1) / 2);
-  let anchorCol = Math.round((snapX - rect.left) / step - (shapeCols - 1) / 2);
+  // Mirror positionGhost exactly so the shadow lands under the ghost
+  const ghostLeft = clientX - (shapeCols * step) / 2;
+  const ghostTop  = clientY - shapeRows * step - cellSize;
 
-  // Clamp so every cell on the board is reachable
+  // Snap when any part of the ghost is near the board
+  const margin = cellSize * 2;
+  if (
+    ghostLeft + shapeCols * step < rect.left   - margin ||
+    ghostLeft                    > rect.right  + margin ||
+    ghostTop  + shapeRows * step < rect.top    - margin ||
+    ghostTop                     > rect.bottom + margin
+  ) return null;
+
+  // Map ghost top-left directly to board anchor
+  let anchorRow = Math.round((ghostTop  - rect.top)  / step);
+  let anchorCol = Math.round((ghostLeft - rect.left) / step);
+
+  // Clamp to valid range
   anchorRow = Math.max(0, Math.min(GRID_SIZE - 1 - maxR, anchorRow));
   anchorCol = Math.max(0, Math.min(GRID_SIZE - 1 - maxC, anchorCol));
 

@@ -315,16 +315,41 @@ function showPreview(clientX, clientY) {
       }
     }
   });
+
+  // Highlight any rows/cols that would be completed by this placement
+  if (valid) {
+    const tmp = board.map(row => [...row]);
+    dragging.shape.forEach(([dr, dc]) => {
+      tmp[target.r + dr][target.c + dc] = dragging.color + 1;
+    });
+    for (let r = 0; r < GRID_SIZE; r++) {
+      if (tmp[r].every(v => v !== 0)) {
+        for (let c = 0; c < GRID_SIZE; c++) {
+          const cell = getCell(r, c);
+          if (cell) cell.classList.add('about-to-clear');
+        }
+      }
+    }
+    for (let c = 0; c < GRID_SIZE; c++) {
+      if (tmp.every(row => row[c] !== 0)) {
+        for (let r = 0; r < GRID_SIZE; r++) {
+          const cell = getCell(r, c);
+          if (cell) cell.classList.add('about-to-clear');
+        }
+      }
+    }
+  }
 }
 
 function clearPreview() {
-  // Valid-placement preview: cells were empty, safe to remove color classes
   boardEl.querySelectorAll('.preview').forEach(cell => {
     cell.classList.remove('preview', ...colorClasses());
   });
-  // Invalid-placement preview: cells may already be filled — only remove the marker
   boardEl.querySelectorAll('.preview-invalid').forEach(cell => {
     cell.classList.remove('preview-invalid');
+  });
+  boardEl.querySelectorAll('.about-to-clear').forEach(cell => {
+    cell.classList.remove('about-to-clear');
   });
 }
 

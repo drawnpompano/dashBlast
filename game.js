@@ -325,16 +325,20 @@ function showPreview(clientX, clientY) {
     for (let r = 0; r < GRID_SIZE; r++) {
       if (tmp[r].every(v => v !== 0)) {
         for (let c = 0; c < GRID_SIZE; c++) {
-          const cell = getCell(r, c);
-          if (cell) cell.classList.add('about-to-clear');
+          if (board[r][c] !== 0) { // only already-placed blocks
+            const cell = getCell(r, c);
+            if (cell) cell.classList.add('about-to-clear');
+          }
         }
       }
     }
     for (let c = 0; c < GRID_SIZE; c++) {
       if (tmp.every(row => row[c] !== 0)) {
         for (let r = 0; r < GRID_SIZE; r++) {
-          const cell = getCell(r, c);
-          if (cell) cell.classList.add('about-to-clear');
+          if (board[r][c] !== 0) { // only already-placed blocks
+            const cell = getCell(r, c);
+            if (cell) cell.classList.add('about-to-clear');
+          }
         }
       }
     }

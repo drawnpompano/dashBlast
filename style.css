@@ -147,19 +147,19 @@ header h1 {
 }
 
 .cell.about-to-clear {
-  animation: rainbow-glow 0.7s linear infinite;
+  background: linear-gradient(
+    135deg,
+    #ff0000, #ff8800, #ffff00, #00ff88, #0088ff, #8800ff, #ff0000
+  ) !important;
+  background-size: 300% 300% !important;
+  animation: rainbow-shine 1s linear infinite;
   border-color: transparent !important;
-  z-index: 1;
 }
 
-@keyframes rainbow-glow {
-  0%   { box-shadow: 0 0 10px 3px #ff0000, inset 0 0 8px rgba(255,0,0,0.25);     border-color: #ff0000 !important; }
-  16%  { box-shadow: 0 0 10px 3px #ff8800, inset 0 0 8px rgba(255,136,0,0.25);   border-color: #ff8800 !important; }
-  33%  { box-shadow: 0 0 10px 3px #ffff00, inset 0 0 8px rgba(255,255,0,0.25);   border-color: #ffff00 !important; }
-  50%  { box-shadow: 0 0 10px 3px #00ff88, inset 0 0 8px rgba(0,255,136,0.25);   border-color: #00ff88 !important; }
-  66%  { box-shadow: 0 0 10px 3px #0088ff, inset 0 0 8px rgba(0,136,255,0.25);   border-color: #0088ff !important; }
-  83%  { box-shadow: 0 0 10px 3px #8800ff, inset 0 0 8px rgba(136,0,255,0.25);   border-color: #8800ff !important; }
-  100% { box-shadow: 0 0 10px 3px #ff0000, inset 0 0 8px rgba(255,0,0,0.25);     border-color: #ff0000 !important; }
+@keyframes rainbow-shine {
+  0%   { background-position: 0% 50%;   filter: brightness(1.1); }
+  50%  { background-position: 100% 50%; filter: brightness(1.4); }
+  100% { background-position: 200% 50%; filter: brightness(1.1); }
 }
 
 .cell.clear-flash {

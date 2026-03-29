@@ -334,30 +334,31 @@ function getCellSize() {
 function boardCoordsFromPointer(clientX, clientY) {
   const rect = boardEl.getBoundingClientRect();
   const cellSize = getCellSize();
-  const gap = 3;
-  const step = cellSize + gap;
+  const step = cellSize + 3;
 
-  const col = Math.round((clientX - rect.left - cellSize / 2) / step);
-  const row = Math.round((clientY - rect.top  - cellSize / 2) / step);
+  // Only snap when pointer is on or near the board
+  const margin = cellSize;
+  if (
+    clientX < rect.left - margin || clientX > rect.right  + margin ||
+    clientY < rect.top  - margin || clientY > rect.bottom + margin
+  ) return null;
 
-  // Offset so the piece centers under the pointer
-  const shapeRows = Math.max(...dragging.shape.map(([r]) => r)) + 1;
-  const shapeCols = Math.max(...dragging.shape.map(([, c]) => c)) + 1;
-  const anchorRow = row - Math.floor(shapeRows / 2);
-  const anchorCol = col - Math.floor(shapeCols / 2);
+  // Map pointer to fractional cell coords
+  const rawCol = (clientX - rect.left) / step;
+  const rawRow = (clientY - rect.top)  / step;
 
-  // Check bounds
-  const minR = Math.min(...dragging.shape.map(([r]) => r));
-  const minC = Math.min(...dragging.shape.map(([, c]) => c));
   const maxR = Math.max(...dragging.shape.map(([r]) => r));
   const maxC = Math.max(...dragging.shape.map(([, c]) => c));
+  const shapeRows = maxR + 1;
+  const shapeCols = maxC + 1;
 
-  if (
-    anchorRow + minR < 0 || anchorRow + maxR >= GRID_SIZE ||
-    anchorCol + minC < 0 || anchorCol + maxC >= GRID_SIZE
-  ) {
-    return null;
-  }
+  // Center piece on pointer
+  let anchorRow = Math.round(rawRow - (shapeRows - 1) / 2);
+  let anchorCol = Math.round(rawCol - (shapeCols - 1) / 2);
+
+  // Clamp to board — never reject a placement due to edge proximity
+  anchorRow = Math.max(0, Math.min(GRID_SIZE - 1 - maxR, anchorRow));
+  anchorCol = Math.max(0, Math.min(GRID_SIZE - 1 - maxC, anchorCol));
 
   return { r: anchorRow, c: anchorCol };
 }
@@ -418,7 +419,7 @@ function clearLines() {
   const totalLines = rowsToClear.length + colsToClear.length;
   if (totalLines === 0) return 0;
 
-  // Flash animation
+  // Flash animation on current DOM cells
   rowsToClear.forEach(r => {
     for (let c = 0; c < GRID_SIZE; c++) {
       const cell = getCell(r, c);
@@ -432,16 +433,16 @@ function clearLines() {
     }
   });
 
-  // Clear after flash
-  setTimeout(() => {
-    rowsToClear.forEach(r => {
-      for (let c = 0; c < GRID_SIZE; c++) board[r][c] = 0;
-    });
-    colsToClear.forEach(c => {
-      for (let r = 0; r < GRID_SIZE; r++) board[r][c] = 0;
-    });
-    renderBoard();
-  }, 350);
+  // Clear board data immediately — no race conditions with rapid placements
+  rowsToClear.forEach(r => {
+    for (let c = 0; c < GRID_SIZE; c++) board[r][c] = 0;
+  });
+  colsToClear.forEach(c => {
+    for (let r = 0; r < GRID_SIZE; r++) board[r][c] = 0;
+  });
+
+  // Re-render after the flash animation finishes
+  setTimeout(renderBoard, 350);
 
   return totalLines;
 }

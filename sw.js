@@ -1,4 +1,4 @@
-const CACHE = 'dash-blast-v4';
+const CACHE = 'dash-blast-v5';
 const ASSETS = [
   '/',
   '/index.html',
@@ -24,8 +24,15 @@ self.addEventListener('activate', e => {
   self.clients.claim();
 });
 
+// Network-first: always try to fetch fresh, fall back to cache if offline
 self.addEventListener('fetch', e => {
   e.respondWith(
-    caches.match(e.request).then(cached => cached || fetch(e.request))
+    fetch(e.request)
+      .then(response => {
+        const clone = response.clone();
+        caches.open(CACHE).then(cache => cache.put(e.request, clone));
+        return response;
+      })
+      .catch(() => caches.match(e.request))
   );
 });

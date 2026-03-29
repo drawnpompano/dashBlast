@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dash Blast</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div id="app">
+    <header>
+      <h1>⚡ Dash Blast</h1>
+      <div id="score-panel">
+        <div class="score-box">
+          <span class="label">SCORE</span>
+          <span id="score">0</span>
+        </div>
+        <div class="score-box">
+          <span class="label">BEST</span>
+          <span id="best-score">0</span>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <div id="board-container">
+        <div id="board"></div>
+      </div>
+      <div id="pieces-tray">
+        <div class="piece-slot" id="slot-0"></div>
+        <div class="piece-slot" id="slot-1"></div>
+        <div class="piece-slot" id="slot-2"></div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Game Over Overlay -->
+  <div id="game-over" class="hidden">
+    <div id="game-over-box">
+      <h2>Game Over</h2>
+      <p>Score: <span id="final-score">0</span></p>
+      <p>Best: <span id="final-best">0</span></p>
+      <button id="restart-btn">Play Again</button>
+    </div>
+  </div>
+
+  <script src="game.js"></script>
+</body>
+</html>

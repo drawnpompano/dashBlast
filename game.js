@@ -328,24 +328,29 @@ function showPreview(clientX, clientY) {
     dragging.shape.forEach(([dr, dc]) => {
       tmp[target.r + dr][target.c + dc] = dragging.color + 1;
     });
+
+    // One random glow color shared across all about-to-clear cells
+    const glowColors = ['#ffd93d', '#3b82f6', '#22c55e', '#a855f7'];
+    const glowColor  = glowColors[Math.floor(Math.random() * glowColors.length)];
+
+    const markCell = (r, c) => {
+      if (board[r][c] !== 0) {
+        const cell = getCell(r, c);
+        if (cell) {
+          cell.style.setProperty('--glow-color', glowColor);
+          cell.classList.add('about-to-clear');
+        }
+      }
+    };
+
     for (let r = 0; r < GRID_SIZE; r++) {
       if (tmp[r].every(v => v !== 0)) {
-        for (let c = 0; c < GRID_SIZE; c++) {
-          if (board[r][c] !== 0) { // only already-placed blocks
-            const cell = getCell(r, c);
-            if (cell) cell.classList.add('about-to-clear');
-          }
-        }
+        for (let c = 0; c < GRID_SIZE; c++) markCell(r, c);
       }
     }
     for (let c = 0; c < GRID_SIZE; c++) {
       if (tmp.every(row => row[c] !== 0)) {
-        for (let r = 0; r < GRID_SIZE; r++) {
-          if (board[r][c] !== 0) { // only already-placed blocks
-            const cell = getCell(r, c);
-            if (cell) cell.classList.add('about-to-clear');
-          }
-        }
+        for (let r = 0; r < GRID_SIZE; r++) markCell(r, c);
       }
     }
   }
@@ -360,6 +365,7 @@ function clearPreview() {
   });
   boardEl.querySelectorAll('.about-to-clear').forEach(cell => {
     cell.classList.remove('about-to-clear');
+    cell.style.removeProperty('--glow-color');
   });
 }
 

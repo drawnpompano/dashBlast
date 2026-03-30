@@ -147,19 +147,20 @@ header h1 {
 }
 
 .cell.about-to-clear {
-  background: linear-gradient(
-    135deg,
-    #ff0000, #ff8800, #ffff00, #00ff88, #0088ff, #8800ff, #ff0000
-  ) !important;
-  background-size: 300% 300% !important;
-  animation: rainbow-shine 1s linear infinite;
-  border-color: transparent !important;
+  animation: cell-glow 0.6s ease-in-out infinite alternate;
 }
 
-@keyframes rainbow-shine {
-  0%   { background-position: 0% 50%;   filter: brightness(1.1); }
-  50%  { background-position: 100% 50%; filter: brightness(1.4); }
-  100% { background-position: 200% 50%; filter: brightness(1.1); }
+@keyframes cell-glow {
+  from {
+    box-shadow: 0 0 6px 2px var(--glow-color, #fff),
+                inset 0 0 0 2px var(--glow-color, #fff);
+    filter: brightness(1.15);
+  }
+  to {
+    box-shadow: 0 0 18px 6px var(--glow-color, #fff),
+                inset 0 0 0 2px var(--glow-color, #fff);
+    filter: brightness(1.45);
+  }
 }
 
 .cell.clear-flash {

@@ -24,7 +24,7 @@
 <body>
   <div id="app">
     <header>
-      <h1>⚡ Dash Blast <span id="version">v1.6</span></h1>
+      <h1>⚡ Dash Blast <span id="version">v1.7</span></h1>
       <div id="score-panel">
         <div class="score-box">
           <span class="label">SCORE</span>
@@ -47,6 +47,26 @@
         <div class="piece-slot" id="slot-2"></div>
       </div>
     </main>
+  </div>
+
+  <!-- Difficulty Screen -->
+  <div id="difficulty-screen">
+    <div id="difficulty-box">
+      <h2>⚡ Dash Blast</h2>
+      <p class="subtitle">Choose your difficulty</p>
+      <button class="diff-btn" id="btn-easy">
+        <span class="diff-label">Easy</span>
+        <span class="diff-desc">Empty board</span>
+      </button>
+      <button class="diff-btn" id="btn-medium">
+        <span class="diff-label">Medium</span>
+        <span class="diff-desc">10 blocks to start</span>
+      </button>
+      <button class="diff-btn" id="btn-hard">
+        <span class="diff-label">Hard</span>
+        <span class="diff-desc">20 blocks to start</span>
+      </button>
+    </div>
   </div>
 
   <!-- Game Over Overlay -->

@@ -79,12 +79,27 @@ const finalBestEl   = document.getElementById('final-best');
 const restartBtn    = document.getElementById('restart-btn');
 const dragGhost     = createDragGhost();
 
+// ===== Difficulty Screen =====
+const difficultyScreenEl = document.getElementById('difficulty-screen');
+document.getElementById('btn-easy').addEventListener('click',   () => startGame(0));
+document.getElementById('btn-medium').addEventListener('click', () => startGame(10));
+document.getElementById('btn-hard').addEventListener('click',   () => startGame(20));
+
+function showDifficultyScreen() {
+  difficultyScreenEl.classList.remove('hidden');
+}
+
+function startGame(prefillCount) {
+  difficultyScreenEl.classList.add('hidden');
+  init(prefillCount);
+}
+
 // ===== Init =====
-function init() {
+function init(prefillCount = 0) {
   board = Array.from({ length: GRID_SIZE }, () => Array(GRID_SIZE).fill(0));
   score = 0;
   pieces = [];
-  prefillBoard();
+  if (prefillCount > 0) prefillBoard(prefillCount);
   renderBoard();
   updateScore();
   bestScoreEl.textContent = bestScore;
@@ -92,8 +107,7 @@ function init() {
   spawnPieces();
 }
 
-function prefillBoard() {
-  const target = Math.floor(GRID_SIZE * GRID_SIZE * 0.40); // ~40% of cells
+function prefillBoard(target) {
   let filled = 0;
   // Shuffle all cell positions and fill in order to guarantee target is reached
   const positions = [];
@@ -610,7 +624,10 @@ function showComboPopup(lines) {
 }
 
 // ===== Restart =====
-restartBtn.addEventListener('click', init);
+restartBtn.addEventListener('click', () => {
+  gameOverEl.classList.add('hidden');
+  showDifficultyScreen();
+});
 
 // ===== Start =====
-init();
+showDifficultyScreen();

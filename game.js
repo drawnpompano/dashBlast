@@ -522,14 +522,15 @@ function createSparkles(x, y) {
     el.className = 'sparkle';
     const angle = (i / count) * 360 + Math.random() * 20;
     const dist  = 18 + Math.random() * 28;
-    el.style.cssText = `
-      left: ${x}px; top: ${y}px;
-      width: ${3 + Math.random() * 5}px;
-      height: ${3 + Math.random() * 5}px;
-      background: ${colors[Math.floor(Math.random() * colors.length)]};
-      --dx: ${Math.cos(angle * Math.PI / 180) * dist}px;
-      --dy: ${Math.sin(angle * Math.PI / 180) * dist}px;
-    `;
+    // Set regular properties via style object
+    el.style.left       = `${x}px`;
+    el.style.top        = `${y}px`;
+    el.style.width      = `${3 + Math.random() * 5}px`;
+    el.style.height     = `${3 + Math.random() * 5}px`;
+    el.style.background = colors[Math.floor(Math.random() * colors.length)];
+    // CSS custom properties must use setProperty
+    el.style.setProperty('--dx', `${Math.cos(angle * Math.PI / 180) * dist}px`);
+    el.style.setProperty('--dy', `${Math.sin(angle * Math.PI / 180) * dist}px`);
     document.body.appendChild(el);
     setTimeout(() => el.remove(), 550);
   }

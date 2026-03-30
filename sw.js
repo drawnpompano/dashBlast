@@ -1,4 +1,4 @@
-const CACHE = 'dash-blast-v6';
+const CACHE = 'dash-blast-v7';
 const ASSETS = [
   '/',
   '/index.html',

@@ -84,11 +84,33 @@ function init() {
   board = Array.from({ length: GRID_SIZE }, () => Array(GRID_SIZE).fill(0));
   score = 0;
   pieces = [];
+  prefillBoard();
   renderBoard();
   updateScore();
   bestScoreEl.textContent = bestScore;
   gameOverEl.classList.add('hidden');
   spawnPieces();
+}
+
+function prefillBoard() {
+  const target = Math.floor(GRID_SIZE * GRID_SIZE * 0.25); // ~25% of cells
+  let filled = 0;
+  let attempts = 0;
+  while (filled < target && attempts < 500) {
+    attempts++;
+    const r = Math.floor(Math.random() * GRID_SIZE);
+    const c = Math.floor(Math.random() * GRID_SIZE);
+    if (board[r][c] !== 0) continue;
+    board[r][c] = Math.floor(Math.random() * COLORS) + 1;
+    // Undo if it completed a row or column — no free clears at game start
+    const rowFull = board[r].every(v => v !== 0);
+    const colFull = board.every(row => row[c] !== 0);
+    if (rowFull || colFull) {
+      board[r][c] = 0;
+    } else {
+      filled++;
+    }
+  }
 }
 
 // ===== Board Rendering =====

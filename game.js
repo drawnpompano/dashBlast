@@ -93,20 +93,25 @@ function init() {
 }
 
 function prefillBoard() {
-  const target = Math.floor(GRID_SIZE * GRID_SIZE * 0.25); // ~25% of cells
+  const target = Math.floor(GRID_SIZE * GRID_SIZE * 0.40); // ~40% of cells
   let filled = 0;
-  let attempts = 0;
-  while (filled < target && attempts < 500) {
-    attempts++;
-    const r = Math.floor(Math.random() * GRID_SIZE);
-    const c = Math.floor(Math.random() * GRID_SIZE);
-    if (board[r][c] !== 0) continue;
+  // Shuffle all cell positions and fill in order to guarantee target is reached
+  const positions = [];
+  for (let r = 0; r < GRID_SIZE; r++)
+    for (let c = 0; c < GRID_SIZE; c++)
+      positions.push([r, c]);
+  // Fisher-Yates shuffle
+  for (let i = positions.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [positions[i], positions[j]] = [positions[j], positions[i]];
+  }
+  for (const [r, c] of positions) {
+    if (filled >= target) break;
     board[r][c] = Math.floor(Math.random() * COLORS) + 1;
-    // Undo if it completed a row or column — no free clears at game start
     const rowFull = board[r].every(v => v !== 0);
     const colFull = board.every(row => row[c] !== 0);
     if (rowFull || colFull) {
-      board[r][c] = 0;
+      board[r][c] = 0; // don't hand the player a free clear
     } else {
       filled++;
     }

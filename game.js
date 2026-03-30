@@ -429,6 +429,9 @@ function placePiece(slotIndex, anchorR, anchorC) {
   });
   p.used = true;
 
+  // Short tap on block placement
+  if (navigator.vibrate) navigator.vibrate(12);
+
   renderBoard();
   renderTray();
 
@@ -472,21 +475,7 @@ function clearLines() {
   const totalLines = rowsToClear.length + colsToClear.length;
   if (totalLines === 0) return 0;
 
-  // Flash animation on current DOM cells
-  rowsToClear.forEach(r => {
-    for (let c = 0; c < GRID_SIZE; c++) {
-      const cell = getCell(r, c);
-      if (cell) cell.classList.add('clear-flash');
-    }
-  });
-  colsToClear.forEach(c => {
-    for (let r = 0; r < GRID_SIZE; r++) {
-      const cell = getCell(r, c);
-      if (cell) cell.classList.add('clear-flash');
-    }
-  });
-
-  // Clear board data immediately — no race conditions with rapid placements
+  // Clear board data immediately
   rowsToClear.forEach(r => {
     for (let c = 0; c < GRID_SIZE; c++) board[r][c] = 0;
   });
@@ -494,10 +483,56 @@ function clearLines() {
     for (let r = 0; r < GRID_SIZE; r++) board[r][c] = 0;
   });
 
-  // Re-render after the flash animation finishes
-  setTimeout(renderBoard, 350);
+  // Vibrate: stronger pulse for line clear
+  if (navigator.vibrate) navigator.vibrate([50, 30, 80]);
+
+  // Animate cells disappearing one column/row index at a time
+  const STEP_MS = 40;
+  const popped = new Set();
+  for (let i = 0; i < GRID_SIZE; i++) {
+    setTimeout(() => {
+      rowsToClear.forEach(r => popCell(r, i, popped));
+      colsToClear.forEach(c => popCell(i, c, popped));
+    }, i * STEP_MS);
+  }
+
+  // Re-render after all animations finish
+  setTimeout(renderBoard, GRID_SIZE * STEP_MS + 280);
 
   return totalLines;
+}
+
+function popCell(r, c, popped) {
+  const key = `${r},${c}`;
+  if (popped.has(key)) return;
+  popped.add(key);
+  const cell = getCell(r, c);
+  if (!cell) return;
+  const rect = cell.getBoundingClientRect();
+  createSparkles(rect.left + rect.width / 2, rect.top + rect.height / 2);
+  cell.classList.add('cell-pop');
+}
+
+// ===== Sparkles =====
+function createSparkles(x, y) {
+  const colors = ['#ffd93d', '#3b82f6', '#22c55e', '#a855f7', '#ffffff'];
+  const count = 8;
+  for (let i = 0; i < count; i++) {
+    const el = document.createElement('div');
+    el.className = 'sparkle';
+    const angle = (i / count) * 360 + Math.random() * 20;
+    const dist  = 18 + Math.random() * 28;
+    el.style.cssText = `
+      left: ${x}px; top: ${y}px;
+      width: ${3 + Math.random() * 5}px;
+      height: ${3 + Math.random() * 5}px;
+      background: ${colors[Math.floor(Math.random() * colors.length)]};
+      --dx: ${Math.cos(angle * Math.PI / 180) * dist}px;
+      --dy: ${Math.sin(angle * Math.PI / 180) * dist}px;
+    `;
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 550);
+  }
 }
 
 // ===== Game Over Detection =====

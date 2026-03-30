@@ -174,13 +174,29 @@ header h1 {
   }
 }
 
-.cell.clear-flash {
-  animation: flash 0.35s ease forwards;
+.cell.cell-pop {
+  animation: cell-pop 0.28s ease-in forwards !important;
 }
 
-@keyframes flash {
-  0%   { filter: brightness(2.5); transform: scale(1.08); }
-  100% { filter: brightness(1);   transform: scale(1); }
+@keyframes cell-pop {
+  0%   { transform: scale(1);    opacity: 1; }
+  40%  { transform: scale(1.25); opacity: 0.8; }
+  100% { transform: scale(0);    opacity: 0; }
+}
+
+/* ===== Sparkle particles ===== */
+.sparkle {
+  position: fixed;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 999;
+  transform: translate(-50%, -50%);
+  animation: sparkle-fly 0.5s ease-out forwards;
+}
+
+@keyframes sparkle-fly {
+  0%   { opacity: 1;   transform: translate(-50%, -50%) translate(0px, 0px) scale(1); }
+  100% { opacity: 0;   transform: translate(-50%, -50%) translate(var(--dx), var(--dy)) scale(0.1); }
 }
 
 /* ===== Pieces Tray ===== */

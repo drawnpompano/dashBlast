@@ -522,16 +522,19 @@ function createSparkles(x, y) {
     el.className = 'sparkle';
     const angle = (i / count) * 360 + Math.random() * 20;
     const dist  = 18 + Math.random() * 28;
-    // Set regular properties via style object
+    const dx    = Math.cos(angle * Math.PI / 180) * dist;
+    const dy    = Math.sin(angle * Math.PI / 180) * dist;
     el.style.left       = `${x}px`;
     el.style.top        = `${y}px`;
     el.style.width      = `${3 + Math.random() * 5}px`;
     el.style.height     = `${3 + Math.random() * 5}px`;
     el.style.background = colors[Math.floor(Math.random() * colors.length)];
-    // CSS custom properties must use setProperty
-    el.style.setProperty('--dx', `${Math.cos(angle * Math.PI / 180) * dist}px`);
-    el.style.setProperty('--dy', `${Math.sin(angle * Math.PI / 180) * dist}px`);
     document.body.appendChild(el);
+    // Use Web Animations API — CSS can't interpolate var() lengths in transforms
+    el.animate([
+      { opacity: 1, transform: `translate(-50%,-50%) translate(0px,0px)   scale(1)`   },
+      { opacity: 0, transform: `translate(-50%,-50%) translate(${dx}px,${dy}px) scale(0.1)` }
+    ], { duration: 500, easing: 'ease-out', fill: 'forwards' });
     setTimeout(() => el.remove(), 550);
   }
 }

@@ -266,12 +266,11 @@ header h1 {
 #difficulty-screen {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.92);
+  background: var(--bg);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 600;
-  backdrop-filter: blur(8px);
 }
 
 #difficulty-screen.hidden { display: none; }
@@ -308,36 +307,27 @@ header h1 {
 .diff-btn {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 14px 20px;
+  justify-content: center;
+  padding: 16px 20px;
   border: 2px solid var(--border);
   border-radius: 14px;
   background: var(--cell-empty);
-  color: var(--text);
   cursor: pointer;
   transition: border-color 0.15s, background 0.15s, transform 0.1s;
   min-height: 56px;
+  font-size: 1.2rem;
+  font-weight: 700;
 }
 
 .diff-btn:active { transform: scale(0.97); }
 
+#btn-easy   { color: #22c55e; }
+#btn-medium { color: #ffd93d; }
+#btn-hard   { color: #ff6584; }
+
 #btn-easy:hover,  #btn-easy:focus  { border-color: #22c55e; background: rgba(34,197,94,0.1); }
 #btn-medium:hover,#btn-medium:focus{ border-color: #ffd93d; background: rgba(255,217,61,0.1); }
 #btn-hard:hover,  #btn-hard:focus  { border-color: #ff6584; background: rgba(255,101,132,0.1); }
-
-.diff-label {
-  font-size: 1.1rem;
-  font-weight: 700;
-}
-
-#btn-easy   .diff-label { color: #22c55e; }
-#btn-medium .diff-label { color: #ffd93d; }
-#btn-hard   .diff-label { color: #ff6584; }
-
-.diff-desc {
-  font-size: 0.8rem;
-  color: var(--text-dim);
-}
 
 /* ===== Game Over Overlay ===== */
 #game-over {

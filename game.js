@@ -81,15 +81,14 @@ const dragGhost     = createDragGhost();
 
 // ===== Difficulty Screen =====
 const difficultyScreenEl = document.getElementById('difficulty-screen');
+let currentPrefillCount = 0;
+
 document.getElementById('btn-easy').addEventListener('click',   () => startGame(0));
 document.getElementById('btn-medium').addEventListener('click', () => startGame(10));
 document.getElementById('btn-hard').addEventListener('click',   () => startGame(20));
 
-function showDifficultyScreen() {
-  difficultyScreenEl.classList.remove('hidden');
-}
-
 function startGame(prefillCount) {
+  currentPrefillCount = prefillCount;
   difficultyScreenEl.classList.add('hidden');
   init(prefillCount);
 }
@@ -626,8 +625,5 @@ function showComboPopup(lines) {
 // ===== Restart =====
 restartBtn.addEventListener('click', () => {
   gameOverEl.classList.add('hidden');
-  showDifficultyScreen();
+  init(currentPrefillCount);
 });
-
-// ===== Start =====
-showDifficultyScreen();

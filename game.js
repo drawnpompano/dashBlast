@@ -82,18 +82,15 @@ const dragGhost     = createDragGhost();
 // ===== Difficulty Screen =====
 const difficultyScreenEl = document.getElementById('difficulty-screen');
 let currentPrefillCount = 0;
+let scoreMultiplier = 1;
 
-document.getElementById('btn-easy').addEventListener('click',   () => startGame(0));
-document.getElementById('btn-medium').addEventListener('click', () => startGame(10));
-document.getElementById('btn-hard').addEventListener('click',   () => startGame(20));
+document.getElementById('btn-easy').addEventListener('click',   () => startGame(0, 1));
+document.getElementById('btn-medium').addEventListener('click', () => startGame(10, 2));
+document.getElementById('btn-hard').addEventListener('click',   () => startGame(20, 3));
 
-document.getElementById('home-btn').addEventListener('click', () => {
-  gameOverEl.classList.add('hidden');
-  difficultyScreenEl.classList.remove('hidden');
-});
-
-function startGame(prefillCount) {
+function startGame(prefillCount, multiplier) {
   currentPrefillCount = prefillCount;
+  scoreMultiplier = multiplier;
   difficultyScreenEl.classList.add('hidden');
   init(prefillCount);
 }
@@ -484,11 +481,11 @@ function placePiece(slotIndex, anchorR, anchorC) {
   if (cleared > 0 && board.every(row => row.every(v => v === 0))) {
     clearBoardBonus = true;
   }
-  const pointsFromCells = p.shape.length * 10;
+  const pointsFromCells = p.shape.length * 10 * scoreMultiplier;
   score += pointsFromCells;
 
   if (cleared > 0) {
-    const lineBonus = cleared * 100 + (cleared > 1 ? (cleared - 1) * 50 : 0);
+    const lineBonus = (cleared * 100 + (cleared > 1 ? (cleared - 1) * 50 : 0)) * scoreMultiplier;
     score += lineBonus;
     showComboPopup(cleared);
   }

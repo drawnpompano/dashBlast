@@ -87,6 +87,11 @@ document.getElementById('btn-easy').addEventListener('click',   () => startGame(
 document.getElementById('btn-medium').addEventListener('click', () => startGame(10));
 document.getElementById('btn-hard').addEventListener('click',   () => startGame(20));
 
+document.getElementById('home-btn').addEventListener('click', () => {
+  gameOverEl.classList.add('hidden');
+  difficultyScreenEl.classList.remove('hidden');
+});
+
 function startGame(prefillCount) {
   currentPrefillCount = prefillCount;
   difficultyScreenEl.classList.add('hidden');

@@ -73,7 +73,7 @@ header h1 {
   letter-spacing: 2px;
 }
 
-#home-btn {
+#home-btn, #home-btn:visited {
   background: linear-gradient(135deg, var(--accent), var(--accent2));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;

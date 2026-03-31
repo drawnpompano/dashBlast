@@ -77,6 +77,7 @@ header h1 {
   background-clip: text;
   cursor: pointer;
   user-select: none;
+  touch-action: manipulation;
 }
 
 #version {

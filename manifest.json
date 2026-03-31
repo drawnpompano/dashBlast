@@ -2,7 +2,7 @@
   "name": "Dash Blast",
   "short_name": "Dash Blast",
   "description": "A fast-paced block-placement puzzle game",
-  "start_url": "/",
+  "start_url": "./",
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#0d0d1a",

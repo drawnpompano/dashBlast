@@ -87,13 +87,10 @@ document.getElementById('btn-easy').addEventListener('click',   () => startGame(
 document.getElementById('btn-medium').addEventListener('click', () => startGame(10));
 document.getElementById('btn-hard').addEventListener('click',   () => startGame(20));
 
-const homeBtnEl = document.getElementById('home-btn');
-function goHome() {
+document.getElementById('home-btn').addEventListener('click', () => {
   gameOverEl.classList.add('hidden');
   difficultyScreenEl.classList.remove('hidden');
-}
-homeBtnEl.addEventListener('click', goHome);
-homeBtnEl.addEventListener('touchend', (e) => { e.preventDefault(); goHome(); });
+});
 
 function startGame(prefillCount) {
   currentPrefillCount = prefillCount;

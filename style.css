@@ -67,7 +67,7 @@ header {
   width: 100%;
 }
 
-header h1 {
+#home-btn {
   font-size: clamp(1.2rem, 5vw, 2rem);
   font-weight: 900;
   letter-spacing: 2px;
@@ -78,6 +78,9 @@ header h1 {
   cursor: pointer;
   user-select: none;
   touch-action: manipulation;
+  border: none;
+  padding: 0;
+  font-family: inherit;
 }
 
 #version {

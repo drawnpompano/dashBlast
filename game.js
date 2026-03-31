@@ -61,7 +61,8 @@ const SHAPES = [
 let board = [];       // 8x8 grid; 0 = empty, else color index 1–8
 let pieces = [];      // array of { shape, color, used } for the 3 slots
 let score = 0;
-let bestScore = parseInt(localStorage.getItem('dashBlastBest') || '0');
+let bestScore    = parseInt(localStorage.getItem('dashBlastBest') || '0');
+let bestInitials = localStorage.getItem('dashBlastInitials') || '';
 
 // Drag state
 let dragging = null;  // { slotIndex, shape, color, anchorRow, anchorCol }
@@ -74,9 +75,13 @@ const boardEl       = document.getElementById('board');
 const scoreEl       = document.getElementById('score');
 const bestScoreEl   = document.getElementById('best-score');
 const gameOverEl    = document.getElementById('game-over');
-const finalScoreEl  = document.getElementById('final-score');
-const finalBestEl   = document.getElementById('final-best');
-const restartBtn    = document.getElementById('restart-btn');
+const finalScoreEl    = document.getElementById('final-score');
+const finalBestEl     = document.getElementById('final-best');
+const restartBtn      = document.getElementById('restart-btn');
+const initialsEntry   = document.getElementById('initials-entry');
+const initialsSubmit  = document.getElementById('initials-submit');
+const initialsBoxes   = Array.from(document.querySelectorAll('.initial-box'));
+const bestInitialsEl  = document.getElementById('best-initials');
 const dragGhost     = createDragGhost();
 
 // ===== Difficulty Screen =====
@@ -103,7 +108,7 @@ function init(prefillCount = 0) {
   if (prefillCount > 0) prefillBoard(prefillCount);
   renderBoard();
   updateScore();
-  bestScoreEl.textContent = bestScore;
+  updateBestDisplay();
   gameOverEl.classList.add('hidden');
   spawnPieces();
 }
@@ -163,7 +168,7 @@ function updateScore() {
   if (score > bestScore) {
     bestScore = score;
     localStorage.setItem('dashBlastBest', bestScore);
-    bestScoreEl.textContent = bestScore;
+    updateBestDisplay();
   }
 }
 
@@ -597,13 +602,39 @@ function canPlaceAnywhere(shape) {
 }
 
 function showGameOver() {
-  if (score > bestScore) {
+  const isNewBest = score > bestScore;
+  if (isNewBest) {
     bestScore = score;
     localStorage.setItem('dashBlastBest', bestScore);
   }
   finalScoreEl.textContent = score;
   finalBestEl.textContent  = bestScore;
+
+  if (isNewBest) {
+    initialsBoxes.forEach(b => b.value = '');
+    initialsEntry.classList.remove('hidden');
+    restartBtn.classList.add('hidden');
+    initialsBoxes[0].focus();
+  } else {
+    initialsEntry.classList.add('hidden');
+    restartBtn.classList.remove('hidden');
+  }
+
   gameOverEl.classList.remove('hidden');
+}
+
+function saveInitials() {
+  const initials = initialsBoxes.map(b => b.value.toUpperCase().replace(/[^A-Z]/g, '') || '_').join('');
+  bestInitials = initials;
+  localStorage.setItem('dashBlastInitials', bestInitials);
+  updateBestDisplay();
+  initialsEntry.classList.add('hidden');
+  restartBtn.classList.remove('hidden');
+}
+
+function updateBestDisplay() {
+  bestScoreEl.textContent = bestScore;
+  bestInitialsEl.textContent = bestInitials ? bestInitials : '';
 }
 
 // ===== Combo Popup =====
@@ -624,8 +655,25 @@ function showComboPopup(lines) {
   setTimeout(() => popup.remove(), 900);
 }
 
+// ===== Initials Input =====
+initialsBoxes.forEach((box, i) => {
+  box.addEventListener('input', () => {
+    box.value = box.value.toUpperCase().replace(/[^A-Z]/g, '');
+    if (box.value && i < 2) initialsBoxes[i + 1].focus();
+    if (i === 2 && box.value) saveInitials();
+  });
+  box.addEventListener('keydown', (e) => {
+    if (e.key === 'Backspace' && !box.value && i > 0) initialsBoxes[i - 1].focus();
+    if (e.key === 'Enter') saveInitials();
+  });
+});
+initialsSubmit.addEventListener('click', saveInitials);
+
 // ===== Restart =====
 restartBtn.addEventListener('click', () => {
   gameOverEl.classList.add('hidden');
   init(currentPrefillCount);
 });
+
+// ===== Boot =====
+updateBestDisplay();

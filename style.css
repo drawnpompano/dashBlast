@@ -347,6 +347,8 @@ header h1 {
 }
 
 /* ===== Initials Entry ===== */
+#initials-entry.hidden { display: none; }
+
 #initials-entry {
   margin: 4px 0 8px;
 }
@@ -448,6 +450,8 @@ header h1 {
   color: var(--yellow);
   font-weight: 700;
 }
+
+#restart-btn.hidden { display: none; }
 
 #restart-btn {
   margin-top: 24px;

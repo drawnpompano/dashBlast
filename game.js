@@ -70,7 +70,6 @@ if (_storedBest < 8010) {
   localStorage.setItem('dashBlastBest', '8010');
   localStorage.setItem('dashBlastInitials', 'LVA');
 }
-let gameStartBest = bestScore;
 
 // Drag state
 let dragging = null;  // { slotIndex, shape, color, anchorRow, anchorCol }
@@ -113,7 +112,6 @@ function init(prefillCount = 0) {
   board = Array.from({ length: GRID_SIZE }, () => Array(GRID_SIZE).fill(0));
   score = 0;
   pieces = [];
-  gameStartBest = bestScore;
   if (prefillCount > 0) prefillBoard(prefillCount);
   renderBoard();
   updateScore();
@@ -174,11 +172,6 @@ function updateScore() {
   scoreEl.classList.remove('pop');
   void scoreEl.offsetWidth; // reflow to restart animation
   scoreEl.classList.add('pop');
-  if (score > bestScore) {
-    bestScore = score;
-    localStorage.setItem('dashBlastBest', bestScore);
-    updateBestDisplay();
-  }
 }
 
 // ===== Piece Spawning =====
@@ -611,7 +604,12 @@ function canPlaceAnywhere(shape) {
 }
 
 function showGameOver() {
-  const isNewBest = score > gameStartBest;
+  const isNewBest = score > bestScore;
+  if (isNewBest) {
+    bestScore = score;
+    localStorage.setItem('dashBlastBest', String(bestScore));
+    updateBestDisplay();
+  }
   finalScoreEl.textContent = score;
   finalBestEl.textContent  = bestScore;
 
@@ -677,7 +675,7 @@ initialsSubmit.addEventListener('click', saveInitials);
 // ===== Restart =====
 restartBtn.addEventListener('click', () => {
   gameOverEl.classList.add('hidden');
-  init(currentPrefillCount);
+  difficultyScreenEl.classList.remove('hidden');
 });
 
 // ===== Boot =====

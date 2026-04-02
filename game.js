@@ -61,9 +61,9 @@ const SHAPES = [
 let board = [];       // 8x8 grid; 0 = empty, else color index 1–8
 let pieces = [];      // array of { shape, color, used } for the 3 slots
 let score = 0;
-let bestScore    = parseInt(localStorage.getItem('dashBlastBest') || '8010');
-let bestInitials = localStorage.getItem('dashBlastInitials') || 'LVA';
-let newBestThisGame = false;
+let bestScore        = parseInt(localStorage.getItem('dashBlastBest') || '8010');
+let bestInitials     = localStorage.getItem('dashBlastInitials') || 'LVA';
+let gameStartBest    = bestScore; // snapshot of best when current game began
 
 // Drag state
 let dragging = null;  // { slotIndex, shape, color, anchorRow, anchorCol }
@@ -106,7 +106,7 @@ function init(prefillCount = 0) {
   board = Array.from({ length: GRID_SIZE }, () => Array(GRID_SIZE).fill(0));
   score = 0;
   pieces = [];
-  newBestThisGame = false;
+  gameStartBest = bestScore;
   if (prefillCount > 0) prefillBoard(prefillCount);
   renderBoard();
   updateScore();
@@ -169,7 +169,6 @@ function updateScore() {
   scoreEl.classList.add('pop');
   if (score > bestScore) {
     bestScore = score;
-    newBestThisGame = true;
     localStorage.setItem('dashBlastBest', bestScore);
     updateBestDisplay();
   }
@@ -605,8 +604,7 @@ function canPlaceAnywhere(shape) {
 }
 
 function showGameOver() {
-  const isNewBest = newBestThisGame;
-  newBestThisGame = false;
+  const isNewBest = score > gameStartBest;
   finalScoreEl.textContent = score;
   finalBestEl.textContent  = bestScore;
 

@@ -61,9 +61,16 @@ const SHAPES = [
 let board = [];       // 8x8 grid; 0 = empty, else color index 1–8
 let pieces = [];      // array of { shape, color, used } for the 3 slots
 let score = 0;
-let bestScore        = parseInt(localStorage.getItem('dashBlastBest') || '8010');
-let bestInitials     = localStorage.getItem('dashBlastInitials') || 'LVA';
-let gameStartBest    = bestScore; // snapshot of best when current game began
+
+// Enforce 8010/LVA as the minimum baseline regardless of what localStorage holds
+const _storedBest = parseInt(localStorage.getItem('dashBlastBest') || '0');
+let bestScore    = Math.max(_storedBest, 8010);
+let bestInitials = _storedBest >= 8010 ? (localStorage.getItem('dashBlastInitials') || 'LVA') : 'LVA';
+if (_storedBest < 8010) {
+  localStorage.setItem('dashBlastBest', '8010');
+  localStorage.setItem('dashBlastInitials', 'LVA');
+}
+let gameStartBest = bestScore;
 
 // Drag state
 let dragging = null;  // { slotIndex, shape, color, anchorRow, anchorCol }
